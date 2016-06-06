@@ -31,8 +31,8 @@ Dict *prepareHandlers();			// Prepara as referências às funções de tratament
 Dict *prepareOps();
 Compiler *compiler_init(FILE *f);	// Inicializa o compilador
 
-#define SUM 0x0 //TO DO: MACHINE CODE TO SUM %r10d TO %r11d
-#define SUB 0X0 //TO DO: MACHINE CODE TO SUB %r10d from %r11d
+#define SUM 0x0 //TO DO: MACHINE CODE TO SUM %r10d TO %r11d -> addl %r10d, %r11d
+#define SUB 0X0 //TO DO: MACHINE CODE TO SUB %r10d from %r11d -> ...
 #define MUL 0x0 //TO DO: MACHINE CODE TO MUL %r10d TO %r11d
 #define LEAVE 0x0 //TO DO: MACHINE CODE TO LEAVE
 #define RET 0x0 //TO DO: MACHINE CODE TO RET
@@ -80,7 +80,7 @@ Compiler *compiler_init(FILE *f){
 	if(comp==NULL) exit(-1);
 	comp->handlers = prepareHandlers();
 	comp->codes = codeList_init();
-	comp->locals = dict_init(sizeof(long));
+	comp->locals = dict_init(sizeof(long));   
 	comp->f = f;
 	comp->varQuant = 0;
 	comp->line = 0;
@@ -128,10 +128,23 @@ void varHandler(Compiler *comp){
     checkVar(var0, idx0, comp->line);
     if (var1 != '$'){
     	checkVarP(var1, idx1, comp->line);
+    	//codeList_insert(comp->codes,0Xa4+idx1);
     	// CODIGO DE MAQUINA movl $idx1, %r11d
     }
     else{
     	space = getLocal(comp,idx1);
+    	//codeList_insert(comp->codes,0xb-4*space);
+    	8
+    	2 + 3 + 3
+    	0xb1   48
+    	0xb2   49
+    	0xb3   50
+
+    	0 0 0 0 0 0 0 0
+    	    1
+    	    2
+    	    3 
+
     	// CODIGO DE MAQUINA movl -4*space(%rpb), %r11d
     }
     if (var2 != '$'){

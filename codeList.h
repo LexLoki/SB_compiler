@@ -2,8 +2,6 @@ typedef struct codeList CodeList;
 
 CodeList *codeList_init();
 
-void codeList_insertBegin();
-
 void codeList_insertCode(CodeList *cd, char code);
 
 void codeList_insertPrepCode(CodeList *cd, char code);

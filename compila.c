@@ -20,8 +20,8 @@ typedef struct compiler{
 
 typedef void (*opHandler)(Compiler*); // Protótipo das funções de tratamento
 
-static void error (const char *msg, int line); 	// **
-void checkVar(char var, int idx, int line); 	// Assertivas fornecidas pela professora
+static void error (const char *msg, int line);  // **
+void checkVar(char var, int idx, int line); 	 // Assertivas fornecidas pela professora
 void checkVarP(char var, int idx, int line);	// **
 
 int getLocal(Compiler *comp,int idx); // Fornece a posição da variável local na pilha dado o seu índice
@@ -29,35 +29,31 @@ char *getOp(Compiler *comp,char op);  // Obtem os códigos de máquina referente
 
 void setLine(Compiler *comp); // Relaciona a linha atual sb com a linha atual assembly
 
-void varHandler(Compiler *comp);	// **
-void retHandler(Compiler *comp);	// Funções de tratamento
-void ifHandler(Compiler *comp);		// **
+void varHandler(Compiler *comp);  // **
+void retHandler(Compiler *comp);  // Funções de tratamento
+void ifHandler(Compiler *comp);	  // **
 void handle(Compiler *comp, char key); // Iterador que chama função de tratamento
 
-Dict *prepareHandlers();			// Prepara as referências às funções de tratamento
-Dict *prepareOps();
+Dict *prepareHandlers();  // Prepara as referências às funções de tratamento
+Dict *prepareOps();       // Prepara os códigos das operações
 Compiler *compiler_init(FILE *f);	// Inicializa o compilador
 void compiler_free(Compiler *comp); // Libera memória alocada pelo compilador
 
-//#define FROM_R10D 0x45
-//#define TO_R11D 0xd3
-//#define SUM 0x01  //MACHINE CODE TO SUM %r10d TO %r11d -> addl %r10d, %r11d
-const char SUM[4] = {0x45, 0x01, 0xd3, '\0'};
-//#define SUB 0X28 //MACHINE CODE TO SUB %r10d from %r11d -> ...
-const char SUB[4] = {0x45, 0x28, 0xd3, '\0'};
-//#define MUL 0x0 //MACHINE CODE TO IMUL %r10d TO %r11d
-const char MUL[5] = {0x45, 0x0f, 0xaf, 0xda, '\0'};
-#define LEAVE 0xc9 //MACHINE CODE TO LEAVE
-#define RET 0xc3 //MACHINE CODE TO RET
-#define STACK_PUSH 0x55 //TO DO: MACHINE CODE TO: pushq %rbp
-const char STACK_MOVE[4] = {0x48, 0x89, 0xe5,'\0'};
-const char STACK_SUB[4] = {0X48, 0X83, 0Xec,'\0'};
-//#define STACK_MOVE 0x0 //TO DO: MACHINE CODE TO: movq %rsp, %rbp
+char SUM[4] = {0x45, 0x01, 0xd3, '\0'};       // MACHINE CODE TO SUM %r10d TO %r11d -> addl %r10d, %r11d
+char SUB[4] = {0x45, 0x28, 0xd3, '\0'};       // MACHINE CODE TO SUB %r10d from %r11d
+char MUL[5] = {0x45, 0x0f, 0xaf, 0xda, '\0'}; // MACHINE CODE TO IMUL %r10d TO %r11d
 
-const char COMPA[4] = {0x41, 0x83, 0xfb, '\0'}; //Seguido de numero a se comparar (00 no caso) %r11d
-const char JUMP_EQUAL[3] = {0x0f, 0x84,'\0'}; //Seguido de INT (8 bytes) com linha
-const char JUMP_GREATER[3] = {0x0f, 0x8f,'\0'}; //Seguido de INT (8 bytes) com linha
-const char JUMP_LESS[3] = {0x0f, 0x8c,'\0'}; //Seguido de INT (8 bytes) com linha
+#define LEAVE 0xc9      // MACHINE CODE TO LEAVE
+#define RET 0xc3        // MACHINE CODE TO RET
+#define STACK_PUSH 0x55 // MACHINE CODE TO: pushq %rbp
+
+const char STACK_MOVE[4] = {0x48, 0x89, 0xe5,'\0'}; // MACHINE CODE TO: movq %rsp, %rbp
+const char STACK_SUB[4] = {0X48, 0X83, 0Xec,'\0'};  // Para espaço na pilha (seguido de constante)
+
+const char COMPA[4] = {0x41, 0x83, 0xfb, '\0'}; // Seguido de numero a se comparar (00 no caso) %r11d
+const char JUMP_EQUAL[3] = {0x0f, 0x84,'\0'};   // Seguido de INT (8 bytes) com linha
+const char JUMP_GREATER[3] = {0x0f, 0x8f,'\0'}; // Seguido de INT (8 bytes) com linha
+const char JUMP_LESS[3] = {0x0f, 0x8c,'\0'};    // Seguido de INT (8 bytes) com linha
 
 
 funcp compila (FILE *f){
@@ -299,7 +295,9 @@ int getLocal(Compiler *comp,int idx){
 }
 
 char *getOp(Compiler *comp,char op){
+  // POR ALGUM MOTIVO O DICIONÁRIO NÃO FUNCIONOU, ENTÃO RECORRI AO IF ELSE MESMO, EM TERNÁRIO
   //char opp[2] = {op,'\0'};
+  //void *v = dict_getValue(comp->opCodes,opp);
   //char *ch = *((char **)dict_getValue(comp->opCodes,opp));
   //return ch;
   return (op=='+') ? SUM : (op=='-') ? SUB : MUL;

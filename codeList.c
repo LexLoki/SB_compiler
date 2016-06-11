@@ -37,9 +37,19 @@ void codeList_insertCode(CodeList *cd, char code){
 	cd->n++;
 }
 
-CodeNode *codeList_insertJumpCode(CodeList *cd, char code){
-	codeList_insertCode(cd,code);
-	return cd->last;
+CodeNode *codeList_insertJumpCode(CodeList *cd, int num){
+	int aux,i;
+	CodeNode *ret;
+	aux = num/16;
+	codeList_insertCode(cd,num%16+(aux%16)*16);
+	num = aux/16;
+	ret = cd->last;
+	for(i=0;i<3;i++){
+		aux = num/16;
+		codeList_insertCode(cd,num%16+(aux%16)*16);
+		num = aux/16;
+	}
+	return ret;
 }
 
 void codeList_insertCodes(CodeList *cd, const char *codes){
@@ -79,12 +89,23 @@ int codeList_getSize(CodeList *cd){
 	return cd->n;
 }
 
-void codeNode_change(CodeNode *cn, char code){
-	cn->code = code;
+void codeNode_changeInt(CodeNode *cn, int num){
+	int i,aux;
+	for(i=0;i<4;i++,cn=cn->next){
+		aux = num/16;
+		cn->code = num%16+(aux%16)*16;
+		num = aux/16;
+	}
 }
 
-char codeNode_get(CodeNode *cn){
-	return cn->code;
+int codeNode_getInt(CodeNode *cn){
+	CodeNode *aux = cn;
+	int num=0, mult=1,i;
+	for(i=0;i<4;i++,aux=aux->next){
+		num += aux->code*mult;
+		mult *= 16*16;
+	}
+	return num;
 }
 
 char *codeList_toArray(CodeList *cd){

@@ -12,7 +12,7 @@ JumpNode *jumpList_init(){
 }
 
 JumpNode *jumpList_insertCodeNode(JumpNode *jn, CodeNode *cn){
-	printf("new jump\n");
+	printf("new jump %c\n",codeNode_getInt(cn));
 	JumpNode *new = (JumpNode*)malloc(sizeof(JumpNode));
 	if(new==NULL) exit(-1);
 	new->codeNode = cn;
@@ -28,8 +28,10 @@ void jumpList_prepJumps(JumpNode *jn, Dict *linesDict){
 	for(aux=jn;aux!=NULL;aux=aux->next){
 		printf("correcting jump\n");
 		//key[0] = codeNode_get(aux->codeNode);
-		sprintf(key,"%d",(int)codeNode_get(aux->codeNode));
-		codeNode_change(aux->codeNode,*((int*)dict_getValue(linesDict,key)));
+		a = codeNode_getInt(aux->codeNode);
+		printf("%d\n",a);
+		sprintf(key,"%d",a);
+		codeNode_changeInt(aux->codeNode,*((int*)dict_getValue(linesDict,key)));
 	}
 
 }

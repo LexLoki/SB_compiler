@@ -29,8 +29,8 @@ char *codeList_toArray(CodeList *cd);
 void codeList_free(CodeList *cd);
 
 //*********************************** FOR JUMPLIST
-CodeNode *codeList_insertJumpCode(CodeList *cd, char code);
+CodeNode *codeList_insertJumpCode(CodeList *cd, int num);
 //To be used by JUMPLIST to alter jump codes
-void codeNode_change(CodeNode *cn, char code);
-//To get actual code
-char codeNode_get(CodeNode *cn);
+void codeNode_changeInt(CodeNode *cn, int num);
+//To get actual int
+int codeNode_getInt(CodeNode *cn);

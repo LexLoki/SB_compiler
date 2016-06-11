@@ -92,6 +92,10 @@ funcp compila (FILE *f){
   	return (funcp)codes;
 }
 
+void libera (void *p){
+  free((char*)p);
+}
+
 Dict *prepareHandlers(){
 	opHandler handlers[3] = {varHandler,retHandler,ifHandler};
 	Dict *d = dict_init(sizeof(int*));
@@ -234,11 +238,29 @@ void varHandler(Compiler *comp){
 }
 
 void ifHandler(Compiler *comp){
-	int idx, n1, n2, n3;
+	int idx, n1, n2, n3, space;
   char var;
   if (fscanf(comp->f, "f %c%d %d %d %d", &var, &idx, &n1, &n2, &n3) != 5)
   error("comando invalido", comp->line);
   if (var != '$') checkVar(var, idx, comp->line);
+
+  if(var=='$'){
+    codeList_insertCode(comp->codes,0x41);
+    codeList_insertCode(comp->codes,0xbb);
+    codeList_insertInt(comp->codes,idx);
+  }
+  else if(var=='v'){
+    space = getLocal(comp,idx);
+    codeList_insertCode(comp->codes,0x44);
+    codeList_insertCode(comp->codes,0x8b);
+    codeList_insertCode(comp->codes,0x5d);
+    codeList_insertCode(comp->codes,256-4*space);
+  }
+  else{
+    codeList_insertCode(comp->codes,0x41);
+    codeList_insertCode(comp->codes,0x89);
+    codeList_insertCode(comp->codes,(idx==0)?(0xfb):(idx==1)?(0xf3):(0xd3));
+  }
 
   codeList_insertCodes(comp->codes,COMPA);
   codeList_insertCode(comp->codes,0);
@@ -254,7 +276,7 @@ void ifHandler(Compiler *comp){
 
   setLine(comp);
   comp->assemblyLine += 5;
-  printf("if %c%d %d %d %d\n", var, idx, n1, n2, n3);
+  //printf("if %c%d %d %d %d\n", var, idx, n1, n2, n3);
 }
 
 void setLine(Compiler *comp){

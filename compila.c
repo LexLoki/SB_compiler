@@ -1,5 +1,6 @@
 #include "dict.h"
 #include "codeList.h"
+#include "jumpList.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include "compila.h"
@@ -14,7 +15,7 @@ typedef struct compiler{
 	int line; 			// Identifica a linha atual
   int assemblyLine;
 	int varQuant; 		// Contador de variáveis locais utilizadas
-  CodeList *ifLines;
+  JumpNode *jumpCodes;
 }Compiler;
 
 typedef void (*opHandler)(Compiler*); // Protótipo das funções de tratamento
@@ -52,11 +53,12 @@ const char STACK_MOVE[4] = {0x48, 0x89, 0xe5,'\0'};
 const char STACK_SUB[4] = {0X48, 0X83, 0Xec,'\0'};
 //#define STACK_MOVE 0x0 //TO DO: MACHINE CODE TO: movq %rsp, %rbp
 
-char COMPA[4] = {0x41, 0x83, 0xfb, '\0'}; //Seguido de numero a se comparar (00 no caso)
+char COMPA[4] = {0x41, 0x83, 0xfb, '\0'}; //Seguido de numero a se comparar (00 no caso) %r11d
 char JUMP_EQUAL[3] = {0x0f, 0x84,'\0'}; //Seguido de INT (8 bytes) com linha
 char JUMP_GREATER[3] = {0x0f, 0x8f,'\0'}; //Seguido de INT (8 bytes) com linha
 char JUMP_LESS[3] = {0x0f, 0x8c,'\0'}; //Seguido de INT (8 bytes) com linha
 
+//A  A  A - A  A  [] A A [] A A []
 
 funcp compila (FILE *f){
 	Compiler *comp = compiler_init(f);
@@ -77,6 +79,10 @@ funcp compila (FILE *f){
   	codeList_insertPrepCode(comp->codes,STACK_PUSH);
     codeList_insertCode(comp->codes,0x00);
     printf("endCodes\n");
+
+    //prep jumps
+    jumpList_prepJumps(comp->jumpCodes,comp->lineDict);
+
   	char *codes = codeList_toArray(comp->codes);
     for(i=0;i<codeList_getSize(comp->codes);i++)
       printf("%x\n",codes[i]&0xff);
@@ -108,7 +114,7 @@ Compiler *compiler_init(FILE *f){
 	if(comp==NULL) exit(-1);
 	comp->handlers = prepareHandlers();
 	comp->codes = codeList_init();
-  comp->ifLines = codeList_init();
+  comp->jumpCodes = jumpList_init();
 	comp->locals = dict_init(sizeof(int));
   comp->lineDict = dict_init(sizeof(int));
   comp->opCodes = prepareOps();
@@ -121,7 +127,7 @@ Compiler *compiler_init(FILE *f){
 
 void compiler_free(Compiler *comp){
 	codeList_free(comp->codes);
-  codeList_free(comp->ifLines);
+  jumpList_free(comp->jumpCodes);
 	dict_free(comp->opCodes);
 	dict_free(comp->handlers);
 	dict_free(comp->locals);
@@ -237,8 +243,17 @@ void ifHandler(Compiler *comp){
   codeList_insertCodes(comp->codes,COMPA);
   codeList_insertCode(comp->codes,0);
 
+  codeList_insertCodes(comp->codes,JUMP_LESS);
+  jumpList_insertCodeNode(comp->jumpCodes,codeList_insertJumpCode(comp->codes,n1));
+
+  codeList_insertCodes(comp->codes,JUMP_EQUAL);
+  jumpList_insertCodeNode(comp->jumpCodes,codeList_insertJumpCode(comp->codes,n2));
+
+  codeList_insertCodes(comp->codes,JUMP_GREATER);
+  jumpList_insertCodeNode(comp->jumpCodes,codeList_insertJumpCode(comp->codes,n3));
+
   setLine(comp);
-  
+  comp->assemblyLine += 5;
   printf("if %c%d %d %d %d\n", var, idx, n1, n2, n3);
 }
 

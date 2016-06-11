@@ -1,3 +1,4 @@
+typedef struct node CodeNode;
 typedef struct codeList CodeList;
 
 //Creates a new list
@@ -26,3 +27,10 @@ char *codeList_toArray(CodeList *cd);
 
 //Free the list
 void codeList_free(CodeList *cd);
+
+//*********************************** FOR JUMPLIST
+CodeNode *codeList_insertJumpCode(CodeList *cd, char code);
+//To be used by JUMPLIST to alter jump codes
+void codeNode_change(CodeNode *cn, char code);
+//To get actual code
+char codeNode_get(CodeNode *cn);

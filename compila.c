@@ -14,6 +14,7 @@ typedef struct compiler{
 	int line; 			// Identifica a linha atual
   int assemblyLine;
 	int varQuant; 		// Contador de variáveis locais utilizadas
+  CodeList *ifLines;
 }Compiler;
 
 typedef void (*opHandler)(Compiler*); // Protótipo das funções de tratamento
@@ -51,6 +52,7 @@ const char STACK_MOVE[4] = {0x48, 0x89, 0xe5,'\0'};
 const char STACK_SUB[4] = {0X48, 0X83, 0Xec,'\0'};
 //#define STACK_MOVE 0x0 //TO DO: MACHINE CODE TO: movq %rsp, %rbp
 
+char COMPA[4] = {0x41, 0x83, 0xfb, '\0'}; //Seguido de numero a se comparar (00 no caso)
 char JUMP_EQUAL[3] = {0x0f, 0x84,'\0'}; //Seguido de INT (8 bytes) com linha
 char JUMP_GREATER[3] = {0x0f, 0x8f,'\0'}; //Seguido de INT (8 bytes) com linha
 char JUMP_LESS[3] = {0x0f, 0x8c,'\0'}; //Seguido de INT (8 bytes) com linha
@@ -106,6 +108,7 @@ Compiler *compiler_init(FILE *f){
 	if(comp==NULL) exit(-1);
 	comp->handlers = prepareHandlers();
 	comp->codes = codeList_init();
+  comp->ifLines = codeList_init();
 	comp->locals = dict_init(sizeof(int));
   comp->lineDict = dict_init(sizeof(int));
   comp->opCodes = prepareOps();
@@ -118,6 +121,7 @@ Compiler *compiler_init(FILE *f){
 
 void compiler_free(Compiler *comp){
 	codeList_free(comp->codes);
+  codeList_free(comp->ifLines);
 	dict_free(comp->opCodes);
 	dict_free(comp->handlers);
 	dict_free(comp->locals);
@@ -163,11 +167,9 @@ void varHandler(Compiler *comp){
 	int idx0, idx1, idx2,space;
   char var1, var2;//var0 = c, var1, var2;
   char op;
-  printf("oi\n");
   if (fscanf(comp->f, "%d = %c%d %c %c%d", &idx0, &var1, &idx1, &op, &var2, &idx2) != 6)
   	error("comando invalido", comp->line);
   //checkVar(var0, idx0, comp->line);
-  printf("oi2\n");
   if (var1 == '$'){
   	//checkVarP(var1, idx1, comp->line);
     codeList_insertCode(comp->codes,0x41);
@@ -188,7 +190,6 @@ void varHandler(Compiler *comp){
     codeList_insertCode(comp->codes,0x89);
     codeList_insertCode(comp->codes,(idx1==0)?(0xfb):(idx1==1)?(0xf3):(0xd3));
   }
-  printf("oi3\n");
   if (var2 == '$'){
   	//checkVarP(var2, idx2, comp->line);
     codeList_insertCode(comp->codes,0x41);
@@ -209,14 +210,11 @@ void varHandler(Compiler *comp){
     codeList_insertCode(comp->codes,0x89);
     codeList_insertCode(comp->codes,(idx2==0)?(0xfa):(idx2==1)?(0xf2):(0xd2));
   }
-  printf("oi4\n");
 
   //codeList_insert(comp->codes,FROM_R10D);
   codeList_insertCodes(comp->codes,getOp(comp,op)); //Code for operation
   //codeList_insert(comp->codes,TO_R11D);
-  printf("oi5\n");
   space = getLocal(comp,idx0);  //Assigning the result
-  printf("oi6\n");
   codeList_insertCode(comp->codes,0x44);
   codeList_insertCode(comp->codes,0x89);
   codeList_insertCode(comp->codes,0x5d);
@@ -236,7 +234,10 @@ void ifHandler(Compiler *comp){
   error("comando invalido", comp->line);
   if (var != '$') checkVar(var, idx, comp->line);
 
-  setLine();
+  codeList_insertCodes(comp->codes,COMPA);
+  codeList_insertCode(comp->codes,0);
+
+  setLine(comp);
   
   printf("if %c%d %d %d %d\n", var, idx, n1, n2, n3);
 }
@@ -244,7 +245,7 @@ void ifHandler(Compiler *comp){
 void setLine(Compiler *comp){
   char key[3];
   sprintf(key,"%d",comp->line);
-  dict_set(comp->lineDict,key,comp->assemblyLine);
+  dict_set(comp->lineDict,key,&(comp->assemblyLine));
 }
 
 int getLocal(Compiler *comp,int idx){

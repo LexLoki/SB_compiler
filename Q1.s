@@ -1,4 +1,1 @@
-addl %r10d, %r11d
-pushq %rbp
-pushq %rbp
-JE 2
+cmpl $0, %r11d

@@ -25,13 +25,14 @@ void checkVar(char var, int idx, int line); 	// Assertivas fornecidas pela profe
 void checkVarP(char var, int idx, int line);	// **
 
 int getLocal(Compiler *comp,int idx); // Fornece a posição da variável local na pilha dado o seu índice
-char *getOp(Compiler *comp,char op);
-void setLine(Compiler *comp);
+char *getOp(Compiler *comp,char op);  // Obtem os códigos de máquina referente a uma dada operação
+
+void setLine(Compiler *comp); // Relaciona a linha atual sb com a linha atual assembly
 
 void varHandler(Compiler *comp);	// **
 void retHandler(Compiler *comp);	// Funções de tratamento
 void ifHandler(Compiler *comp);		// **
-void handle(Compiler *comp, char key);
+void handle(Compiler *comp, char key); // Iterador que chama função de tratamento
 
 Dict *prepareHandlers();			// Prepara as referências às funções de tratamento
 Dict *prepareOps();
@@ -41,11 +42,11 @@ void compiler_free(Compiler *comp); // Libera memória alocada pelo compilador
 //#define FROM_R10D 0x45
 //#define TO_R11D 0xd3
 //#define SUM 0x01  //MACHINE CODE TO SUM %r10d TO %r11d -> addl %r10d, %r11d
-char SUM[4] = {0x45, 0x01, 0xd3, '\0'};
+const char SUM[4] = {0x45, 0x01, 0xd3, '\0'};
 //#define SUB 0X28 //MACHINE CODE TO SUB %r10d from %r11d -> ...
-char SUB[4] = {0x45, 0x28, 0xd3, '\0'};
+const char SUB[4] = {0x45, 0x28, 0xd3, '\0'};
 //#define MUL 0x0 //MACHINE CODE TO IMUL %r10d TO %r11d
-char MUL[5] = {0x45, 0x0f, 0xaf, 0xda, '\0'};
+const char MUL[5] = {0x45, 0x0f, 0xaf, 0xda, '\0'};
 #define LEAVE 0xc9 //MACHINE CODE TO LEAVE
 #define RET 0xc3 //MACHINE CODE TO RET
 #define STACK_PUSH 0x55 //TO DO: MACHINE CODE TO: pushq %rbp
@@ -53,12 +54,11 @@ const char STACK_MOVE[4] = {0x48, 0x89, 0xe5,'\0'};
 const char STACK_SUB[4] = {0X48, 0X83, 0Xec,'\0'};
 //#define STACK_MOVE 0x0 //TO DO: MACHINE CODE TO: movq %rsp, %rbp
 
-char COMPA[4] = {0x41, 0x83, 0xfb, '\0'}; //Seguido de numero a se comparar (00 no caso) %r11d
-char JUMP_EQUAL[3] = {0x0f, 0x84,'\0'}; //Seguido de INT (8 bytes) com linha
-char JUMP_GREATER[3] = {0x0f, 0x8f,'\0'}; //Seguido de INT (8 bytes) com linha
-char JUMP_LESS[3] = {0x0f, 0x8c,'\0'}; //Seguido de INT (8 bytes) com linha
+const char COMPA[4] = {0x41, 0x83, 0xfb, '\0'}; //Seguido de numero a se comparar (00 no caso) %r11d
+const char JUMP_EQUAL[3] = {0x0f, 0x84,'\0'}; //Seguido de INT (8 bytes) com linha
+const char JUMP_GREATER[3] = {0x0f, 0x8f,'\0'}; //Seguido de INT (8 bytes) com linha
+const char JUMP_LESS[3] = {0x0f, 0x8c,'\0'}; //Seguido de INT (8 bytes) com linha
 
-//A  A  A - A  A  [] A A [] A A []
 
 funcp compila (FILE *f){
 	Compiler *comp = compiler_init(f);

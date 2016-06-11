@@ -21,8 +21,8 @@ int teste (void) {
   }
   printf("Abrindo");
   func = compila(myfp);
-  func(2,3,4);
+  //func(2,3,4);
   printf("Completo");
-  //printf("%d", func(2,3));
+  printf("%d", func(2,3,4));
   return 0;
 }

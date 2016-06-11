@@ -266,13 +266,13 @@ void ifHandler(Compiler *comp){
   codeList_insertCode(comp->codes,0);
 
   codeList_insertCodes(comp->codes,JUMP_LESS);
-  jumpList_insertCodeNode(comp->jumpCodes,codeList_insertJumpCode(comp->codes,n1));
+  comp->jumpCodes = jumpList_insertCodeNode(comp->jumpCodes,codeList_insertJumpCode(comp->codes,n1));
 
   codeList_insertCodes(comp->codes,JUMP_EQUAL);
-  jumpList_insertCodeNode(comp->jumpCodes,codeList_insertJumpCode(comp->codes,n2));
+  comp->jumpCodes = jumpList_insertCodeNode(comp->jumpCodes,codeList_insertJumpCode(comp->codes,n2));
 
   codeList_insertCodes(comp->codes,JUMP_GREATER);
-  jumpList_insertCodeNode(comp->jumpCodes,codeList_insertJumpCode(comp->codes,n3));
+  comp->jumpCodes = jumpList_insertCodeNode(comp->jumpCodes,codeList_insertJumpCode(comp->codes,n3));
 
   setLine(comp);
   comp->assemblyLine += 5;

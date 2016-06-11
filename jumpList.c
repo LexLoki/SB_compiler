@@ -1,5 +1,6 @@
 #include "jumpList.h"
 #include <stdlib.h>
+#include <stdio.h>
 
 struct jmpNode{
 	CodeNode *codeNode;
@@ -10,19 +11,24 @@ JumpNode *jumpList_init(){
 	return (JumpNode*)NULL;
 }
 
-void jumpList_insertCodeNode(JumpNode *jn, CodeNode *cn){
+JumpNode *jumpList_insertCodeNode(JumpNode *jn, CodeNode *cn){
+	printf("new jump\n");
 	JumpNode *new = (JumpNode*)malloc(sizeof(JumpNode));
 	if(new==NULL) exit(-1);
 	new->codeNode = cn;
 	new->next = jn;
-	jn = new;
+	return new;
 }
 
 void jumpList_prepJumps(JumpNode *jn, Dict *linesDict){
 	JumpNode *aux;
-	char key[2] = {0,0};
+	printf("letsJump\n");
+	char key[3];
+	int a;
 	for(aux=jn;aux!=NULL;aux=aux->next){
-		key[0] = codeNode_get(aux->codeNode);
+		printf("correcting jump\n");
+		//key[0] = codeNode_get(aux->codeNode);
+		sprintf(key,"%d",(int)codeNode_get(aux->codeNode));
 		codeNode_change(aux->codeNode,*((int*)dict_getValue(linesDict,key)));
 	}
 

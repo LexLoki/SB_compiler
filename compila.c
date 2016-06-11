@@ -10,12 +10,12 @@ typedef struct compiler{
 	Dict *opCodes;		// Códigos de máquina por operação
 	Dict *handlers; 	// Armazena referência às funções de tratamento (atribuicao, retorno, desvio)
 	Dict *locals; 		// Armazena posições de cada variável local de acordo com seu índice
-	FILE *f; 			 // Ponteiro para arquivo sendo usado na compilação
+	FILE *f; 			    // Ponteiro para arquivo sendo usado na compilação
   Dict *lineDict;   // Armazena para cada linha do progama sb, sua correspondente em assembly
-	int line; 			// Identifica a linha atual
-  int assemblyLine;
+	int line; 			  // Identifica a linha atual do codigo SB
+  int assemblyLine; // Identifica a linha atual do assembly correspondente ao SB
 	int varQuant; 		// Contador de variáveis locais utilizadas
-  JumpNode *jumpCodes;
+  JumpNode *jumpCodes;  // Lista encadeada com nós apontando para o começo dos códigos de máquina
 }Compiler;
 
 typedef void (*opHandler)(Compiler*); // Protótipo das funções de tratamento
@@ -121,7 +121,7 @@ Compiler *compiler_init(FILE *f){
 	comp->f = f;
 	comp->varQuant = 0;
 	comp->line = 1;
-  comp->assemblyLine = 1;
+  comp->assemblyLine = 4; // 3 primeiras linhas são da preparação da pilha
 	return comp;
 }
 
@@ -153,12 +153,16 @@ void retHandler(Compiler *comp){
     codeList_insertInt(comp->codes,idx);
   	// CODIGO DE MAQUINA movl $idx, %eax
   }
-  else{
+  else if(var == 'v'){
   	space = getLocal(comp,idx);
     codeList_insertCode(comp->codes,0x8b);
     codeList_insertCode(comp->codes,0x45);
     codeList_insertCode(comp->codes,256-4*space);
     // CODIGO DE MAQUINA movl -4*space(%rbp), %eax
+  }
+  else{
+    codeList_insertCode(comp->codes,0x89);
+    codeList_insertCode(comp->codes,(idx==0)?(0xf8):(idx==1)?(0xf0):(0xd0));
   }
   codeList_insertCode(comp->codes,LEAVE);
   codeList_insertCode(comp->codes,RET);

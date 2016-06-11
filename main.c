@@ -19,10 +19,11 @@ int teste (void) {
     perror ("nao conseguiu abrir arquivo!");
     exit(1);
   }
+
   printf("Abrindo");
   func = compila(myfp);
-  //func(2,3,4);
   printf("Completo");
   printf("%d", func(2,3,4));
+
   return 0;
 }

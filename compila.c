@@ -247,8 +247,6 @@ void varHandler(Compiler *comp){
   codeList_insertCode(comp->codes,256-4*space);
   // CODIGO DE MAQUINA X = movl %r11d, -4*space(%rbp)
   // codeList_insert(comp->codes,X);
-  //printf("%c%d = %c%d %c %c%d\n",var0, idx0, var1, idx1, op, var2, idx2);
-  //setLine(comp);
   comp->assemblyLine += 4;
   printf("fim atribuicao\n");
 }
@@ -289,29 +287,24 @@ void ifHandler(Compiler *comp){
   codeList_insertCode(comp->codes,0); //1 byte
   comp->assemblyLine += 4;
 
-  comp->assemblyLine += 2;
+  comp->assemblyLine += 18; //teste escroto
+
+  //comp->assemblyLine += 6;
   codeList_insertCodes(comp->codes,JUMP_LESS); //2 bytes
   comp->jumpCodes = jumpList_insertCodeNode(comp->jumpCodes,codeList_insertJumpCode(comp->codes,n1),comp->assemblyLine); //4 bytes
-  comp->assemblyLine += 4;
 
-  comp->assemblyLine += 2;
+  //comp->assemblyLine += 6;
   codeList_insertCodes(comp->codes,JUMP_EQUAL); //2 bytes
   comp->jumpCodes = jumpList_insertCodeNode(comp->jumpCodes,codeList_insertJumpCode(comp->codes,n2),comp->assemblyLine); //4 bytes
-  comp->assemblyLine += 4;
 
-  comp->assemblyLine += 2;
+  //comp->assemblyLine += 6;
   codeList_insertCodes(comp->codes,JUMP_GREATER); //2 bytes
   comp->jumpCodes = jumpList_insertCodeNode(comp->jumpCodes,codeList_insertJumpCode(comp->codes,n3),comp->assemblyLine); //4 bytes
-  comp->assemblyLine += 4;
-
-  //setLine(comp);
-  //comp->assemblyLine += 22; //comp->assemblyLine += 5;
-  //printf("if %c%d %d %d %d\n", var, idx, n1, n2, n3);
 }
 
 void setLine(Compiler *comp){
   char key[3];
-  printf("ass: %d\n",comp->assemblyLine);
+  printf("ass: %d - %d\n",comp->line, comp->assemblyLine);
   sprintf(key,"%d",comp->line);
   dict_set(comp->lineDict,key,&(comp->assemblyLine));
 }

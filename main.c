@@ -9,6 +9,7 @@ int main(void){
   teste();
   return 0;
 }
+
 int teste (void) {
   
   FILE *myfp;
@@ -18,12 +19,10 @@ int teste (void) {
     exit(1);
   }
 
-  printf("Abrindo");
   func = compila(myfp);
-  printf("Completo");
-  printf("%d", func(2,3,4));
+  printf("Termo 7 de fibbonaci: %d", func(7));
 
   libera(func);
-  
+
   return 0;
 }

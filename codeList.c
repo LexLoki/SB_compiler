@@ -90,11 +90,11 @@ int codeList_getSize(CodeList *cd){
 }
 
 void codeNode_changeInt(CodeNode *cn, int num){
-	int i,aux;
+	unsigned int i,aux,n=num;
 	for(i=0;i<4;i++,cn=cn->next){
-		aux = num/16;
-		cn->code = num%16+(aux%16)*16;
-		num = aux/16;
+		aux = n/16;
+		cn->code = n%16+(aux%16)*16;
+		n = aux/16;
 	}
 }
 
@@ -114,7 +114,6 @@ char *codeList_toArray(CodeList *cd){
 	char *arr = (char*)malloc(sizeof(char)*(cd->n));
 	if(arr==NULL) exit(-1);
 	for(i=0;i<cd->n;arr[i++]=aux->code,aux=aux->next);
-	//arr[i]='\0';
 	return arr;
 }
 

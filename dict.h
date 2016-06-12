@@ -9,10 +9,13 @@ typedef struct dict Dict;
 
 Dict *dict_init(int valueSize);
 
+// Sets a key-value pair
 void dict_set(Dict *d, char *key, void *value);
 
+// Remove an entry by its key
 void dict_remove(Dict *d, char *key);
 
+// Gets a value by its key
 void *dict_getValue(Dict *d, char *key);
 
 void dict_free(Dict *d);

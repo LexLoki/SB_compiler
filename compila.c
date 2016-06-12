@@ -283,21 +283,29 @@ void ifHandler(Compiler *comp){
     comp->assemblyLine += 3;
   }
 
-  codeList_insertCodes(comp->codes,COMPA); //3 bytes
-  codeList_insertCode(comp->codes,0); //1 byte
-  comp->assemblyLine += 4;
+  //codeList_insertCodes(comp->codes,COMPA); //3 bytes
+  //codeList_insertCode(comp->codes,0); //1 byte
+  //comp->assemblyLine += 4;
 
-  comp->assemblyLine += 18; //teste escroto
+  codeList_insertCode(comp->codes,0x41);
+  codeList_insertCode(comp->codes,0xba);
+  codeList_insertInt(comp->codes,0);
+  codeList_insertCode(comp->codes,0x45);
+  codeList_insertCode(comp->codes,0x39);
+  codeList_insertCode(comp->codes,0xda);
+  comp->assemblyLine += 9;
+  //41 ba 00 00 00 00
+  //45 39 da 
 
-  //comp->assemblyLine += 6;
+  comp->assemblyLine += 6;
   codeList_insertCodes(comp->codes,JUMP_LESS); //2 bytes
   comp->jumpCodes = jumpList_insertCodeNode(comp->jumpCodes,codeList_insertJumpCode(comp->codes,n1),comp->assemblyLine); //4 bytes
 
-  //comp->assemblyLine += 6;
+  comp->assemblyLine += 6;
   codeList_insertCodes(comp->codes,JUMP_EQUAL); //2 bytes
   comp->jumpCodes = jumpList_insertCodeNode(comp->jumpCodes,codeList_insertJumpCode(comp->codes,n2),comp->assemblyLine); //4 bytes
 
-  //comp->assemblyLine += 6;
+  comp->assemblyLine += 6;
   codeList_insertCodes(comp->codes,JUMP_GREATER); //2 bytes
   comp->jumpCodes = jumpList_insertCodeNode(comp->jumpCodes,codeList_insertJumpCode(comp->codes,n3),comp->assemblyLine); //4 bytes
 }

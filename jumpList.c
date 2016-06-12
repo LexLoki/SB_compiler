@@ -20,7 +20,7 @@ JumpNode *jumpList_insertCodeNode(JumpNode *jn, CodeNode *cn){
 	return new;
 }
 
-void jumpList_prepJumps(JumpNode *jn, Dict *linesDict){
+void jumpList_prepJumps(JumpNode *jn, Dict *linesDict, int offset){
 	JumpNode *aux;
 	printf("letsJump\n");
 	char key[3];
@@ -31,7 +31,7 @@ void jumpList_prepJumps(JumpNode *jn, Dict *linesDict){
 		a = codeNode_getInt(aux->codeNode);
 		printf("%d\n",a);
 		sprintf(key,"%d",a);
-		codeNode_changeInt(aux->codeNode,*((int*)dict_getValue(linesDict,key)));
+		codeNode_changeInt(aux->codeNode,offset+*((int*)dict_getValue(linesDict,key)));
 	}
 
 }

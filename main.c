@@ -13,8 +13,6 @@ int teste (void) {
   
   FILE *myfp;
   funcp func;
-  char pal[4] = {'a',0x00,'b','\0'};
-  int i;
   if ((myfp = fopen ("programa.txt", "r")) == NULL) {
     perror ("nao conseguiu abrir arquivo!");
     exit(1);

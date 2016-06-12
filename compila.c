@@ -60,7 +60,7 @@ funcp compila (FILE *f){
 	Compiler *comp = compiler_init(f);
 	char c;
 	char q;
-  int i;
+  int i,n;
 	
 	while ((c = fgetc(comp->f)) != EOF){
 		handle(comp,c);
@@ -76,11 +76,15 @@ funcp compila (FILE *f){
     //codeList_insertCode(comp->codes,0x00);
     printf("endCodes\n");
 
-    //prep jumps
-    jumpList_prepJumps(comp->jumpCodes,comp->lineDict);
+    n = codeList_getSize(comp->codes);
+    char *codes = (char*)malloc(n*sizeof(char));
 
-  	char *codes = codeList_toArray(comp->codes);
-    for(i=0;i<codeList_getSize(comp->codes);i++)
+    //prep jumps
+    jumpList_prepJumps(comp->jumpCodes,comp->lineDict,(int)codes);
+
+    codeList_fillArray(comp->codes,codes);
+  	//char *codes = codeList_toArray(comp->codes);
+    for(i=0;i<n;i++)
       printf("%x ",codes[i]&0xff);
     printf("gotArray\n");
   	compiler_free(comp);

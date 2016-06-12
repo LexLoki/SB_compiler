@@ -118,6 +118,12 @@ char *codeList_toArray(CodeList *cd){
 	return arr;
 }
 
+void codeList_fillArray(CodeList *cd, char *arr){
+	int i;
+	struct node *aux=cd->first;
+	for(i=0;i<cd->n;arr[i++]=aux->code,aux=aux->next);
+}
+
 void codeList_free(CodeList *cd){
 	struct node *aux;
 	for(;cd->first!=NULL;aux=cd->first,cd->first=aux->next,free(aux));

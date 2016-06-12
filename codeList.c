@@ -111,10 +111,10 @@ int codeNode_getInt(CodeNode *cn){
 char *codeList_toArray(CodeList *cd){
 	int i;
 	struct node *aux=cd->first;
-	char *arr = (char*)malloc(sizeof(char)*(cd->n+1));
+	char *arr = (char*)malloc(sizeof(char)*(cd->n));
 	if(arr==NULL) exit(-1);
 	for(i=0;i<cd->n;arr[i++]=aux->code,aux=aux->next);
-	arr[i]='\0';
+	//arr[i]='\0';
 	return arr;
 }
 

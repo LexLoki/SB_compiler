@@ -34,3 +34,5 @@ CodeNode *codeList_insertJumpCode(CodeList *cd, int num);
 void codeNode_changeInt(CodeNode *cn, int num);
 //To get actual int
 int codeNode_getInt(CodeNode *cn);
+
+void codeNode_fillArray(CodeList *cd, char *arr);

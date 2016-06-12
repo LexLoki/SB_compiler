@@ -1,6 +1,3 @@
-.globl _bemboba
-
-_bemboba:
 pushq %rbp
 movq %rsp, %rbp
 subq $16, %rsp

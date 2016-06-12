@@ -7,8 +7,8 @@ typedef struct jmpNode JumpNode;
 JumpNode *jumpList_init();
 
 //Inserts a char code in the list
-JumpNode *jumpList_insertCodeNode(JumpNode *jn, CodeNode *cn);
+JumpNode *jumpList_insertCodeNode(JumpNode *jn, CodeNode *cn, int fromCode);
 
-void jumpList_prepJumps(JumpNode *jn, Dict *linesDict, int offset);
+void jumpList_prepJumps(JumpNode *jn, Dict *linesDict);
 
 void jumpList_free(JumpNode *jn);

@@ -77,13 +77,13 @@ funcp compila (FILE *f){
     printf("endCodes\n");
 
     n = codeList_getSize(comp->codes);
-    char *codes = (char*)malloc(n*sizeof(char));
+    //char *codes = (char*)malloc(n*sizeof(char));
 
     //prep jumps
-    jumpList_prepJumps(comp->jumpCodes,comp->lineDict,(int)codes);
+    jumpList_prepJumps(comp->jumpCodes,comp->lineDict);//(int)codes);
 
-    codeList_fillArray(comp->codes,codes);
-  	//char *codes = codeList_toArray(comp->codes);
+    //codeList_fillArray(comp->codes,codes);
+  	char *codes = codeList_toArray(comp->codes);
     for(i=0;i<n;i++)
       printf("%x ",codes[i]&0xff);
     printf("gotArray\n");
@@ -283,18 +283,22 @@ void ifHandler(Compiler *comp){
 
   codeList_insertCodes(comp->codes,COMPA); //3 bytes
   codeList_insertCode(comp->codes,0); //1 byte
+  comp->assemblyLine += 4;
 
+  comp->assemblyLine += 6;
   codeList_insertCodes(comp->codes,JUMP_LESS); //2 bytes
-  comp->jumpCodes = jumpList_insertCodeNode(comp->jumpCodes,codeList_insertJumpCode(comp->codes,n1)); //4 bytes
+  comp->jumpCodes = jumpList_insertCodeNode(comp->jumpCodes,codeList_insertJumpCode(comp->codes,n1),comp->assemblyLine); //4 bytes
 
+  comp->assemblyLine += 6;
   codeList_insertCodes(comp->codes,JUMP_EQUAL); //2 bytes
-  comp->jumpCodes = jumpList_insertCodeNode(comp->jumpCodes,codeList_insertJumpCode(comp->codes,n2)); //4 bytes
+  comp->jumpCodes = jumpList_insertCodeNode(comp->jumpCodes,codeList_insertJumpCode(comp->codes,n2),comp->assemblyLine); //4 bytes
 
+  comp->assemblyLine += 6;
   codeList_insertCodes(comp->codes,JUMP_GREATER); //2 bytes
-  comp->jumpCodes = jumpList_insertCodeNode(comp->jumpCodes,codeList_insertJumpCode(comp->codes,n3)); //4 bytes
+  comp->jumpCodes = jumpList_insertCodeNode(comp->jumpCodes,codeList_insertJumpCode(comp->codes,n3),comp->assemblyLine); //4 bytes
 
   //setLine(comp);
-  comp->assemblyLine += 22; //comp->assemblyLine += 5;
+  //comp->assemblyLine += 22; //comp->assemblyLine += 5;
   //printf("if %c%d %d %d %d\n", var, idx, n1, n2, n3);
 }
 

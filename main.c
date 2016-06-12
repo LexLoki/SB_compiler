@@ -23,5 +23,7 @@ int teste (void) {
   printf("Completo");
   printf("%d", func(2,3,4));
 
+  libera(func);
+  
   return 0;
 }

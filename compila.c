@@ -283,10 +283,11 @@ void ifHandler(Compiler *comp){
     comp->assemblyLine += 3;
   }
 
-  //codeList_insertCodes(comp->codes,COMPA); //3 bytes
-  //codeList_insertCode(comp->codes,0); //1 byte
-  //comp->assemblyLine += 4;
+  codeList_insertCodes(comp->codes,COMPA); //3 bytes
+  codeList_insertCode(comp->codes,0); //1 byte
+  comp->assemblyLine += 4;
 
+  /*
   codeList_insertCode(comp->codes,0x41);
   codeList_insertCode(comp->codes,0xba);
   codeList_insertInt(comp->codes,0);
@@ -295,7 +296,8 @@ void ifHandler(Compiler *comp){
   codeList_insertCode(comp->codes,0xda);
   comp->assemblyLine += 9;
   //41 ba 00 00 00 00
-  //45 39 da 
+  //45 39 da
+  */
 
   comp->assemblyLine += 6;
   codeList_insertCodes(comp->codes,JUMP_LESS); //2 bytes

@@ -81,7 +81,7 @@ funcp compila (FILE *f){
 
   	char *codes = codeList_toArray(comp->codes);
     for(i=0;i<codeList_getSize(comp->codes);i++)
-      printf("%x\n",codes[i]&0xff);
+      printf("%x ",codes[i]&0xff);
     printf("gotArray\n");
   	compiler_free(comp);
     printf("compilerEnd\n");
@@ -121,7 +121,7 @@ Compiler *compiler_init(FILE *f){
 	comp->f = f;
 	comp->varQuant = 0;
 	comp->line = 1;
-  comp->assemblyLine = 4; // 3 primeiras linhas são da preparação da pilha
+  comp->assemblyLine = 8;//4; // 3 primeiras linhas são da preparação da pilha
 	return comp;
 }
 
@@ -145,30 +145,34 @@ void retHandler(Compiler *comp){
   printf("retorno\n");
 	int idx, space;
   char var;
+  setLine(comp);
   if (fscanf(comp->f, "et %c%d", &var, &idx) != 2)
   	error("comando invalido", comp->line);
   if (var == '$'){
   	//checkVarP(var, idx, comp->line);
-    codeList_insertCode(comp->codes,0xb8);
-    codeList_insertInt(comp->codes,idx);
+    codeList_insertCode(comp->codes,0xb8); //1b
+    codeList_insertInt(comp->codes,idx);  //4b
   	// CODIGO DE MAQUINA movl $idx, %eax
+    comp->assemblyLine += 5;
   }
   else if(var == 'v'){
   	space = getLocal(comp,idx);
-    codeList_insertCode(comp->codes,0x8b);
-    codeList_insertCode(comp->codes,0x45);
-    codeList_insertCode(comp->codes,256-4*space);
+    codeList_insertCode(comp->codes,0x8b); //1b
+    codeList_insertCode(comp->codes,0x45); //1b
+    codeList_insertCode(comp->codes,256-4*space); //1b
     // CODIGO DE MAQUINA movl -4*space(%rbp), %eax
+    comp->assemblyLine += 3;
   }
   else{
     codeList_insertCode(comp->codes,0x89);
     codeList_insertCode(comp->codes,(idx==0)?(0xf8):(idx==1)?(0xf0):(0xd0));
+    comp->assemblyLine += 2;
   }
   codeList_insertCode(comp->codes,LEAVE);
   codeList_insertCode(comp->codes,RET);
   //printf("ret %c%d\n", var, idx);
-  setLine(comp);
-  comp->assemblyLine += 3;
+  //setLine(comp);
+  comp->assemblyLine += 2;//3;
   printf("end retorn\n");
 }
 
@@ -177,6 +181,7 @@ void varHandler(Compiler *comp){
 	int idx0, idx1, idx2,space;
   char var1, var2;//var0 = c, var1, var2;
   char op;
+  setLine(comp);
   if (fscanf(comp->f, "%d = %c%d %c %c%d", &idx0, &var1, &idx1, &op, &var2, &idx2) != 6)
   	error("comando invalido", comp->line);
   //checkVar(var0, idx0, comp->line);
@@ -186,6 +191,8 @@ void varHandler(Compiler *comp){
     codeList_insertCode(comp->codes,0xbb);
     codeList_insertInt(comp->codes,idx1);
   	// CODIGO DE MAQUINA movl $idx1, %r11d
+    //6 bytes
+    comp->assemblyLine += 6;
   }
   else if(var1 == 'v'){
   	space = getLocal(comp,idx1);
@@ -194,11 +201,15 @@ void varHandler(Compiler *comp){
     codeList_insertCode(comp->codes,0x5d);
     codeList_insertCode(comp->codes,256-4*space);
   	// CODIGO DE MAQUINA movl -4*space(%rpb), %r11d
+    //4 bytes
+    comp->assemblyLine += 4;
   }
   else{
     codeList_insertCode(comp->codes,0x41);
     codeList_insertCode(comp->codes,0x89);
     codeList_insertCode(comp->codes,(idx1==0)?(0xfb):(idx1==1)?(0xf3):(0xd3));
+    //3 bytes
+    comp->assemblyLine += 3;
   }
   if (var2 == '$'){
   	//checkVarP(var2, idx2, comp->line);
@@ -206,6 +217,8 @@ void varHandler(Compiler *comp){
     codeList_insertCode(comp->codes,0xba);
     codeList_insertInt(comp->codes,idx2);
   	// CODIGO DE MAQUINA movl $idx2, %r10d
+    // 6 bytes
+    comp->assemblyLine += 6;
   }
   else if(var2 == 'v'){
   	space = getLocal(comp,idx2);
@@ -214,30 +227,36 @@ void varHandler(Compiler *comp){
     codeList_insertCode(comp->codes,0x55);
     codeList_insertCode(comp->codes,256-4*space);
   	// CODIGO DE MAQUINA movl -4*space(%rpb), %r10d
+    //4 bytes
+    comp->assemblyLine += 4;
   }
   else{
     codeList_insertCode(comp->codes,0x41);
     codeList_insertCode(comp->codes,0x89);
     codeList_insertCode(comp->codes,(idx2==0)?(0xfa):(idx2==1)?(0xf2):(0xd2));
+    //3 bytes
+    comp->assemblyLine += 3;
   }
 
   //codeList_insert(comp->codes,FROM_R10D);
   codeList_insertCodes(comp->codes,getOp(comp,op)); //Code for operation
+  comp->assemblyLine += (op=='*') ? 4 : 3;
   //codeList_insert(comp->codes,TO_R11D);
   space = getLocal(comp,idx0);  //Assigning the result
-  codeList_insertCode(comp->codes,0x44);
-  codeList_insertCode(comp->codes,0x89);
-  codeList_insertCode(comp->codes,0x5d);
-  codeList_insertCode(comp->codes,256-4*space);
+  codeList_insertCode(comp->codes,0x44); //1b
+  codeList_insertCode(comp->codes,0x89); //1b
+  codeList_insertCode(comp->codes,0x5d); //1b
+  codeList_insertCode(comp->codes,256-4*space); //1b
   // CODIGO DE MAQUINA X = movl %r11d, -4*space(%rbp)
   // codeList_insert(comp->codes,X);
   //printf("%c%d = %c%d %c %c%d\n",var0, idx0, var1, idx1, op, var2, idx2);
-  setLine(comp);
+  //setLine(comp);
   comp->assemblyLine += 4;
   printf("fim atribuicao\n");
 }
 
 void ifHandler(Compiler *comp){
+  setLine(comp);
 	int idx, n1, n2, n3, space;
   char var;
   if (fscanf(comp->f, "f %c%d %d %d %d", &var, &idx, &n1, &n2, &n3) != 5)
@@ -248,6 +267,8 @@ void ifHandler(Compiler *comp){
     codeList_insertCode(comp->codes,0x41);
     codeList_insertCode(comp->codes,0xbb);
     codeList_insertInt(comp->codes,idx);
+    //6 bytes
+    comp->assemblyLine += 6;
   }
   else if(var=='v'){
     space = getLocal(comp,idx);
@@ -255,27 +276,31 @@ void ifHandler(Compiler *comp){
     codeList_insertCode(comp->codes,0x8b);
     codeList_insertCode(comp->codes,0x5d);
     codeList_insertCode(comp->codes,256-4*space);
+    //4 bytes
+    comp->assemblyLine += 4;
   }
   else{
     codeList_insertCode(comp->codes,0x41);
     codeList_insertCode(comp->codes,0x89);
     codeList_insertCode(comp->codes,(idx==0)?(0xfb):(idx==1)?(0xf3):(0xd3));
+    //3 bytes
+    comp->assemblyLine += 3;
   }
 
-  codeList_insertCodes(comp->codes,COMPA);
-  codeList_insertCode(comp->codes,0);
+  codeList_insertCodes(comp->codes,COMPA); //4 bytes
+  codeList_insertCode(comp->codes,0); //1 byte
 
-  codeList_insertCodes(comp->codes,JUMP_LESS);
-  comp->jumpCodes = jumpList_insertCodeNode(comp->jumpCodes,codeList_insertJumpCode(comp->codes,n1));
+  codeList_insertCodes(comp->codes,JUMP_LESS); //2 bytes
+  comp->jumpCodes = jumpList_insertCodeNode(comp->jumpCodes,codeList_insertJumpCode(comp->codes,n1)); //4 bytes
 
-  codeList_insertCodes(comp->codes,JUMP_EQUAL);
-  comp->jumpCodes = jumpList_insertCodeNode(comp->jumpCodes,codeList_insertJumpCode(comp->codes,n2));
+  codeList_insertCodes(comp->codes,JUMP_EQUAL); //2 bytes
+  comp->jumpCodes = jumpList_insertCodeNode(comp->jumpCodes,codeList_insertJumpCode(comp->codes,n2)); //4 bytes
 
-  codeList_insertCodes(comp->codes,JUMP_GREATER);
-  comp->jumpCodes = jumpList_insertCodeNode(comp->jumpCodes,codeList_insertJumpCode(comp->codes,n3));
+  codeList_insertCodes(comp->codes,JUMP_GREATER); //2 bytes
+  comp->jumpCodes = jumpList_insertCodeNode(comp->jumpCodes,codeList_insertJumpCode(comp->codes,n3)); //4 bytes
 
-  setLine(comp);
-  comp->assemblyLine += 5;
+  //setLine(comp);
+  comp->assemblyLine += 23; //comp->assemblyLine += 5;
   //printf("if %c%d %d %d %d\n", var, idx, n1, n2, n3);
 }
 

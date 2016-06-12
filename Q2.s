@@ -1,3 +1,1 @@
-movl %edi, %eax
-movl %esi, %eax
-movl %edx, %eax
+jmp 0x2

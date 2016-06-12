@@ -13,7 +13,7 @@ typedef struct compiler{
 	FILE *f; 			    // Ponteiro para arquivo sendo usado na compilação
   Dict *lineDict;   // Armazena para cada linha do progama sb, sua correspondente em assembly
 	int line; 			  // Identifica a linha atual do codigo SB
-  int assemblyLine; // Identifica a linha atual do assembly correspondente ao SB
+  int assemblyLine; // Identifica o codigo de maquina (byte) atual correspondente ao SB
 	int varQuant; 		// Contador de variáveis locais utilizadas
   JumpNode *jumpCodes;  // Lista encadeada com nós apontando para o começo dos códigos de máquina
 }Compiler;
@@ -149,6 +149,7 @@ void retHandler(Compiler *comp){
   printf("retorno\n");
 	int idx, space;
   char var;
+  setLine(comp);
   if (fscanf(comp->f, "et %c%d", &var, &idx) != 2)
   	error("comando invalido", comp->line);
   if (var == '$'){
@@ -156,6 +157,7 @@ void retHandler(Compiler *comp){
     codeList_insertCode(comp->codes,0xb8);
     codeList_insertInt(comp->codes,idx);
   	// CODIGO DE MAQUINA movl $idx, %eax
+    comp->assemblyLine += 5;
   }
   else if(var == 'v'){
   	space = getLocal(comp,idx);
@@ -163,16 +165,18 @@ void retHandler(Compiler *comp){
     codeList_insertCode(comp->codes,0x45);
     codeList_insertCode(comp->codes,256-4*space);
     // CODIGO DE MAQUINA movl -4*space(%rbp), %eax
+    comp->assemblyLine += 3;
   }
   else{
     codeList_insertCode(comp->codes,0x89);
     codeList_insertCode(comp->codes,(idx==0)?(0xf8):(idx==1)?(0xf0):(0xd0));
+    comp->assemblyLine += 2;
   }
   codeList_insertCode(comp->codes,LEAVE);
   codeList_insertCode(comp->codes,RET);
+  comp->assemblyLine += 2;
   //printf("ret %c%d\n", var, idx);
-  setLine(comp);
-  comp->assemblyLine += 3;
+  //comp->assemblyLine += 3;
   printf("end retorn\n");
 }
 

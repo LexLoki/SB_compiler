@@ -1,3 +1,3 @@
-jmp 0x0
-jmp 0x1
-jmp 0x100000f6d
+jl 0
+je 0
+jg 0

@@ -33,7 +33,7 @@ void jumpList_prepJumps(JumpNode *jn, Dict *linesDict){
 		a = codeNode_getInt(aux->codeNode);
 		printf("%d\n",a);
 		sprintf(key,"%d",a);
-		codeNode_changeInt(aux->codeNode,*((int*)dict_getValue(linesDict,key))-aux->fromCode);
+		codeNode_changeInt(aux->codeNode,*((int*)dict_getValue(linesDict,key)) - aux->fromCode);
 	}
 
 }

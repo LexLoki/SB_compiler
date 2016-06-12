@@ -289,17 +289,20 @@ void ifHandler(Compiler *comp){
   codeList_insertCode(comp->codes,0); //1 byte
   comp->assemblyLine += 4;
 
-  comp->assemblyLine += 6;
+  comp->assemblyLine += 2;
   codeList_insertCodes(comp->codes,JUMP_LESS); //2 bytes
   comp->jumpCodes = jumpList_insertCodeNode(comp->jumpCodes,codeList_insertJumpCode(comp->codes,n1),comp->assemblyLine); //4 bytes
+  comp->assemblyLine += 4;
 
-  comp->assemblyLine += 6;
+  comp->assemblyLine += 2;
   codeList_insertCodes(comp->codes,JUMP_EQUAL); //2 bytes
   comp->jumpCodes = jumpList_insertCodeNode(comp->jumpCodes,codeList_insertJumpCode(comp->codes,n2),comp->assemblyLine); //4 bytes
+  comp->assemblyLine += 4;
 
-  comp->assemblyLine += 6;
+  comp->assemblyLine += 2;
   codeList_insertCodes(comp->codes,JUMP_GREATER); //2 bytes
   comp->jumpCodes = jumpList_insertCodeNode(comp->jumpCodes,codeList_insertJumpCode(comp->codes,n3),comp->assemblyLine); //4 bytes
+  comp->assemblyLine += 4;
 
   //setLine(comp);
   //comp->assemblyLine += 22; //comp->assemblyLine += 5;
